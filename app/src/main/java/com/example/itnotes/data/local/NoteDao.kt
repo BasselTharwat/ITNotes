@@ -19,5 +19,5 @@ interface NoteDao {
     fun getAllNotes(): Flow<List<Note>>
 
     @Query("SELECT * FROM notes WHERE id = :noteId")
-    suspend fun getNoteById(noteId: Int): Flow<Note?>
+    fun getNoteById(noteId: Int): Flow<Note?>
 }
