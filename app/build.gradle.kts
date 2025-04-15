@@ -43,6 +43,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -78,6 +79,9 @@ dependencies {
     // ViewModel
     implementation(libs.compose.lifecycle.viewmodel)
     implementation(libs.compose.lifecycle.runtime)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
 
 }
 

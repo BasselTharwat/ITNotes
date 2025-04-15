@@ -73,7 +73,9 @@ class NoteViewModel @Inject constructor(
         }
     }
 
-
+    fun setEmptyNote() {
+        TODO("Not yet implemented")
+    }
 
 
 }
