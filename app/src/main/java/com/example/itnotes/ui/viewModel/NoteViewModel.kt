@@ -3,6 +3,7 @@ package com.example.itnotes.ui.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.itnotes.data.local.Note
+import com.example.itnotes.domain.usecase.CreateNoteUseCase
 import com.example.itnotes.domain.usecase.DeleteNoteUseCase
 import com.example.itnotes.domain.usecase.GetNoteByIdUseCase
 import com.example.itnotes.domain.usecase.UpdateNoteUseCase
@@ -21,14 +22,14 @@ sealed interface NoteUiState{
     data class Success(val note: Note): NoteUiState
     object Error: NoteUiState
     object Loading: NoteUiState
-    object Empty: NoteUiState
 }
 
 @HiltViewModel
 class NoteViewModel @Inject constructor(
     private val getNoteByIdUseCase: GetNoteByIdUseCase,
     private val updateNoteUseCase: UpdateNoteUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase
+    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val createNoteUseCase: CreateNoteUseCase
 ) : ViewModel(){
 
     private val _noteUiState = MutableStateFlow<NoteUiState>(NoteUiState.Loading)
@@ -44,7 +45,7 @@ class NoteViewModel @Inject constructor(
             }
             .onEach { note ->
                 if (note == null) {
-                    _noteUiState.value = NoteUiState.Empty
+                    _noteUiState.value = NoteUiState.Error
                 } else {
                     _noteUiState.value = NoteUiState.Success(note)
                 }
@@ -73,8 +74,15 @@ class NoteViewModel @Inject constructor(
         }
     }
 
-    fun setEmptyNote() {
-        TODO("Not yet implemented")
+    fun createNote(note: Note){
+        viewModelScope.launch {
+            try {
+                val newNodeId = createNoteUseCase(note)
+                getNoteById(newNodeId)
+            } catch (e: Exception) {
+                _noteUiState.value = NoteUiState.Error
+            }
+        }
     }
 
 

@@ -25,8 +25,7 @@ sealed interface HomeUiState{
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getAllNotesUseCase: GetAllNotesUseCase,
-    private val createNoteUseCase: CreateNoteUseCase
+    private val getAllNotesUseCase: GetAllNotesUseCase
 ) : ViewModel(){
 
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -36,7 +35,7 @@ class HomeViewModel @Inject constructor(
         getAllNotes()
     }
 
-    fun getAllNotes() {
+    private fun getAllNotes() {
         getAllNotesUseCase()
             .onStart {
                 _homeUiState.value = HomeUiState.Loading
@@ -49,18 +48,4 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
     }
-
-    fun createNote(note: Note) {
-        viewModelScope.launch {
-            try {
-                createNoteUseCase(note)
-                getAllNotes()
-            } catch (e: Exception) {
-                _homeUiState.value = HomeUiState.Error
-            }
-        }
-    }
-
-
-
 }

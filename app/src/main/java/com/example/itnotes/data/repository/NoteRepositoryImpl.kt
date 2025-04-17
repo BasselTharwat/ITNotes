@@ -13,7 +13,7 @@ class NoteRepositoryImpl @Inject constructor(
 
     override fun getNoteById(id: Int): Flow<Note?> = noteDao.getNoteById(id)
 
-    override suspend fun insertNote(note: Note) = noteDao.insertNote(note)
+    override suspend fun insertNote(note: Note) : Long = noteDao.insertNote(note)
 
     override suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
 
