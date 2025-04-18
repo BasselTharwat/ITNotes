@@ -45,7 +45,7 @@ fun NoteItem(note: Note,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "Edited on: ${SimpleDateFormat("EEE, hh:mm a", Locale.getDefault()).format(
+                text = "Created on: ${SimpleDateFormat("EEE, hh:mm a", Locale.getDefault()).format(
                     Date(note.createdAt)
                 )}",
                 style = MaterialTheme.typography.labelSmall,

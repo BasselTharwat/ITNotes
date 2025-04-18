@@ -11,6 +11,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +43,10 @@ import com.example.itnotes.data.local.Note
 import com.example.itnotes.ui.components.NoteContent
 import com.example.itnotes.ui.viewModel.NoteUiState
 import com.example.itnotes.ui.viewModel.NoteViewModel
+import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,21 +72,44 @@ fun NoteScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Note") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        if (uiState is NoteUiState.Success) {
-                            val note = (uiState as NoteUiState.Success).note
-                            viewModel.updateNote(note)
-                        }
-                        onBack()
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            NoteTopAppBar(
+                onBack = {
+                    if (uiState is NoteUiState.Success) {
+                        val note = (uiState as NoteUiState.Success).note
+                        viewModel.updateNote(note)
                     }
+                    onBack()
+                },
+                onDelete = {
+                    if (uiState is NoteUiState.Success) {
+                        val note = (uiState as NoteUiState.Success).note
+                        viewModel.deleteNote(note)
+                        onBack() // Automatically navigate back to the HomeScreen after deletion
+                    }
+                },
+                onAddTags = {
+                    // Handle add tags action (implement the logic for adding tags here)
                 }
             )
-        }
+        },
+        bottomBar = {
+            if (uiState is NoteUiState.Success) {
+                val note = (uiState as NoteUiState.Success).note
+                val formattedDate = remember(note.lastModified) {
+                    val sdf = SimpleDateFormat("MMM dd, yyyy - HH:mm", Locale.getDefault())
+                    sdf.format(Date(note.lastModified))
+                }
+
+                BottomAppBar {
+                    Text(
+                        text = "Last modified: $formattedDate",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+            }
+        },
+        modifier = modifier
     ) { padding ->
         when (uiState) {
             is NoteUiState.Loading -> {
@@ -104,5 +134,33 @@ fun NoteScreen(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteTopAppBar(
+    onBack: () -> Unit,
+    onDelete: () -> Unit,
+    onAddTags: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = { Text("Note") },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+        },
+        actions = {
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Filled.Delete, contentDescription = "Delete")
+            }
+            IconButton(onClick = onAddTags) {
+                Icon(Icons.Filled.Star, contentDescription = "Add Tags")
+            }
+        },
+        modifier = modifier
+    )
+}
+
 
 
