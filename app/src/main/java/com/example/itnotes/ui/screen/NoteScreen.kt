@@ -93,19 +93,62 @@ fun NoteScreen(
             }
             is NoteUiState.Success -> {
                 val note = (uiState as NoteUiState.Success).note
+                var title by remember { mutableStateOf(note.title) }
+                var content by remember { mutableStateOf(note.content) }
+
                 val focusManager = LocalFocusManager.current
 
-                NoteContent(
-                    note = note,
-                    onTitleChange = { title ->
-                        viewModel.updateNote(note.copy(title = title, content = note.content))
-                    },
-                    onContentChange = { content ->
-                        viewModel.updateNote(note.copy(title = note.title, content = content))
-                    },
-                    focusManager = focusManager,
-                    modifier
-                )
+                // Auto update ViewModel on title/content change
+                LaunchedEffect(title, content) {
+                    viewModel.updateNote(note.copy(title = title, content = content))
+                }
+
+                Column(
+                    modifier = modifier
+                        .padding(padding)
+                        .padding(16.dp)
+                        .fillMaxSize()
+                ) {
+                    BasicTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        textStyle = TextStyle.Default.copy(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                        decorationBox = { innerTextField ->
+                            if (title.isEmpty()) {
+                                Text("Title", style = TextStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                            }
+                            innerTextField()
+                        }
+                    )
+
+                    BasicTextField(
+                        value = content,
+                        onValueChange = { content = it },
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        textStyle = TextStyle.Default.copy(
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        decorationBox = { innerTextField ->
+                            if (content.isEmpty()) {
+                                Text("Start writing...", style = TextStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                            }
+                            innerTextField()
+                        }
+                    )
+                }
             }
         }
     }
