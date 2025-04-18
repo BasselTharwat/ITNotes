@@ -17,35 +17,41 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.itnotes.data.local.Note
+import com.example.itnotes.ui.viewModel.NoteViewModel
 
 @Composable
 fun NoteContent(
     note: Note,
-    onTitleChange: (String) -> Unit,
-    onContentChange: (String) -> Unit,
-    focusManager: FocusManager,
-    modifier: Modifier = Modifier
-) {
-    var title by remember(note.id) { mutableStateOf(note.title) }
-    var content by remember(note.id) { mutableStateOf(note.content) }
+    modifier: Modifier = Modifier,
+    viewModel: NoteViewModel = hiltViewModel()
+){
+
+    var title by remember { mutableStateOf(note.title) }
+    var content by remember { mutableStateOf(note.content) }
+
+    val focusManager = LocalFocusManager.current
+
+    // Auto update ViewModel on title/content change
+    LaunchedEffect(title, content) {
+        viewModel.updateNote(note.copy(title = title, content = content))
+    }
 
     Column(
         modifier = modifier
-            .fillMaxSize()
             .padding(16.dp)
+            .fillMaxSize()
     ) {
         BasicTextField(
             value = title,
-            onValueChange = {
-                title = it
-                onTitleChange(it)
-            },
+            onValueChange = { title = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -66,10 +72,7 @@ fun NoteContent(
 
         BasicTextField(
             value = content,
-            onValueChange = {
-                content = it
-                onContentChange(it)
-            },
+            onValueChange = { content = it },
             modifier = Modifier
                 .fillMaxSize(),
             textStyle = TextStyle.Default.copy(
@@ -86,4 +89,5 @@ fun NoteContent(
             }
         )
     }
+
 }
