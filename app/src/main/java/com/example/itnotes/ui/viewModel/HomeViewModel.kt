@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.itnotes.data.local.Note
 import com.example.itnotes.domain.usecase.CreateNoteUseCase
 import com.example.itnotes.domain.usecase.GetAllNotesUseCase
+import com.example.itnotes.domain.usecase.SearchNotesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,8 @@ sealed interface HomeUiState{
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getAllNotesUseCase: GetAllNotesUseCase
+    private val getAllNotesUseCase: GetAllNotesUseCase,
+    private val searchNotesUseCase: SearchNotesUseCase
 ) : ViewModel(){
 
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -48,4 +50,25 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
     }
+
+    fun searchNotes(query: String) {
+        if (query.isBlank()) {
+            getAllNotes()
+            return
+        }
+
+        searchNotesUseCase(query)
+            .onStart {
+                _homeUiState.value = HomeUiState.Loading
+            }
+            .catch {
+                _homeUiState.value = HomeUiState.Error
+            }
+            .onEach { notes ->
+                _homeUiState.value = HomeUiState.Success(notes)
+            }
+            .launchIn(viewModelScope)
+    }
+
+
 }

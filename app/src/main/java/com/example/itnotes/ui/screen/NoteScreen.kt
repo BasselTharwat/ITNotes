@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.itnotes.data.local.Note
 import com.example.itnotes.ui.components.NoteContent
+import com.example.itnotes.ui.components.TagEditorBottomSheet
 import com.example.itnotes.ui.viewModel.NoteUiState
 import com.example.itnotes.ui.viewModel.NoteViewModel
 import kotlinx.coroutines.delay
@@ -53,10 +54,11 @@ import java.util.Locale
 fun NoteScreen(
     noteId: Int?,
     onBack: () -> Unit,
-    viewModel: NoteViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: NoteViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.noteUiState.collectAsState()
+    var showTagSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(noteId) {
         if (noteId == null || noteId == -1) {
@@ -88,7 +90,7 @@ fun NoteScreen(
                     }
                 },
                 onAddTags = {
-                    // Handle add tags action (implement the logic for adding tags here)
+                    showTagSheet = true
                 }
             )
         },
@@ -132,6 +134,19 @@ fun NoteScreen(
                 )
             }
         }
+
+        if (showTagSheet && uiState is NoteUiState.Success) {
+            val note = (uiState as NoteUiState.Success).note
+            TagEditorBottomSheet(
+                currentTags = note.tags,
+                onDismiss = { showTagSheet = false },
+                onSave = { updatedTags ->
+                    viewModel.updateNote(note.copy(tags = updatedTags))
+                    showTagSheet = false
+                }
+            )
+        }
+
     }
 }
 
