@@ -31,8 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.itnotes.data.local.Note
+import com.example.itnotes.ui.components.utils.formatDate
 import com.example.itnotes.ui.viewModel.NoteViewModel
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -47,6 +49,10 @@ fun NoteContent(
     var content by remember { mutableStateOf(note.content) }
 
     val focusManager = LocalFocusManager.current
+
+    val formattedCreatedDate = remember(note.createdAt) {
+        formatDate(note.createdAt)
+    }
 
     // Auto update ViewModel on title/content change
     LaunchedEffect(title, content) {
@@ -73,11 +79,26 @@ fun NoteContent(
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
             decorationBox = { innerTextField ->
                 if (title.isEmpty()) {
-                    Text("Title", style = TextStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                    Text(
+                        "Title",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    )
                 }
                 innerTextField()
             }
         )
+
+        if (note.content.isNotBlank() || note.title.isNotBlank()) {
+            Text(
+                text = "Created on: $formattedCreatedDate",
+                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.outline),
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+            )
+        }
+
 
         BasicTextField(
             value = content,
@@ -88,11 +109,16 @@ fun NoteContent(
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onBackground
             ),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Default),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             decorationBox = { innerTextField ->
                 if (content.isEmpty()) {
-                    Text("Start writing...", style = TextStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                    Text(
+                        "Write something...",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    )
                 }
                 innerTextField()
             }

@@ -55,7 +55,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -82,6 +81,20 @@ dependencies {
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
+
+    // Testing and Mocking
+    // Kotlin coroutines testing
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    // Mocking
+    testImplementation(libs.mockk)
+
+    // Turbine (for testing Flows like StateFlow)
+    testImplementation(libs.turbine)
+
+    // JUnit
+    testImplementation(libs.junit)
+
 
 }
 

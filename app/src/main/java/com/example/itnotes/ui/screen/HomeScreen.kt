@@ -1,8 +1,12 @@
 package com.example.itnotes.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +27,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.example.itnotes.ui.components.NoteItem
@@ -32,11 +40,18 @@ import com.example.itnotes.ui.viewModel.HomeUiState
 import com.example.itnotes.ui.viewModel.HomeViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.itnotes.R
+import com.example.itnotes.ui.components.SearchBar
+import com.example.itnotes.ui.components.icons.AddNoteIcon
+import com.example.itnotes.ui.components.icons.SearchIcon
 
 
 @Composable
@@ -47,6 +62,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel() 
 ) {
     val uiState by viewModel.homeUiState.collectAsState()
+    var isSearching by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     when (uiState) {
         is HomeUiState.Loading -> {
@@ -65,26 +82,59 @@ fun HomeScreen(
             val notes = (uiState as HomeUiState.Success).notes
 
             Scaffold (
-                topBar = {
-                    HomeTopAppBar(
-                        modifier = modifier,
-                        onAddClick = onAddNote
-                    )
+                topBar =
+                {
+                    if (isSearching) {
+                        SearchBar(
+                            query = searchQuery,
+                            onQueryChange = { searchQuery = it },
+                            onSearch = {
+                                viewModel.searchNotes(searchQuery)
+                            },
+                            onClose = {
+                                isSearching = false
+                                searchQuery = ""
+                                viewModel.getAllNotes()
+                            }
+                        )
+                    } else {
+                        HomeTopAppBar(
+                            modifier = modifier,
+                            onAddClick = onAddNote,
+                            onSearchClick = { isSearching = true }
+                        )
+                    }
+
                 },
                 modifier = modifier
             )
-            { it ->
-                LazyColumn(
-                    contentPadding = it,
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(it),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(notes) { note ->
-                        NoteItem(note = note,
-                            onClick = { onNoteClick(note.id) }
+            {
+                if (notes.isEmpty() && isSearching && searchQuery.isNotBlank()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(it),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No notes found for \"$searchQuery\"",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        contentPadding = it,
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(top = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(notes) { note ->
+                            NoteItem(note = note,
+                                onClick = { onNoteClick(note.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -95,46 +145,54 @@ fun HomeScreen(
 @Composable
 fun HomeTopAppBar(
     modifier: Modifier = Modifier,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onSearchClick: () -> Unit
 ){
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.Bottom) {
             val image = painterResource(id = R.drawable.john)
             Image(
                 painter = image,
                 contentDescription = null,
                 modifier = modifier
-                    .size(16.dp)
-                    .clip(CircleShape)
+                    .size(64.dp)
+                    .border(4.dp, MaterialTheme.colorScheme.onSurface, RectangleShape)
             )
+
+
             Spacer(modifier = modifier.width(8.dp))
-            Text("Hello 👋 John!", style = MaterialTheme.typography.titleMedium)
+            Column (
+                modifier = modifier,
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.Start
+
+            ){
+                Text("Hello \uD83D\uDC4B ",
+                    style = MaterialTheme.typography.bodySmall)
+                Text("John!", style = MaterialTheme.typography.titleLarge)
+            }
+
         }
 
-
-        FloatingActionButton(onClick = onAddClick) {
-            Icon(Icons.Default.Add, contentDescription = "Add Note")
+        Row (
+            modifier = modifier
+        ){
+            SearchIcon(onSearchClick)
+            Spacer(modifier = modifier.width(8.dp))
+            AddNoteIcon(onAddClick)
         }
+
 
 
     }
 
 
-}
-
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(
-        onAddNote = {},
-        onNoteClick = {}
-    )
 }
 

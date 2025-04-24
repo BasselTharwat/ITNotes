@@ -1,5 +1,6 @@
 package com.example.itnotes.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.itnotes.data.local.Note
@@ -7,6 +8,7 @@ import com.example.itnotes.domain.usecase.CreateNoteUseCase
 import com.example.itnotes.domain.usecase.GetAllNotesUseCase
 import com.example.itnotes.domain.usecase.SearchNotesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,7 +39,7 @@ class HomeViewModel @Inject constructor(
         getAllNotes()
     }
 
-    private fun getAllNotes() {
+    fun getAllNotes() {
         getAllNotesUseCase()
             .onStart {
                 _homeUiState.value = HomeUiState.Loading

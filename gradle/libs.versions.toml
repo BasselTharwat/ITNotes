@@ -6,9 +6,11 @@ coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxCoroutinesTest = "1.7.3"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
 composeBom = "2024.04.01"
+mockk = "1.13.5"
 navigationCompose = "2.8.9"
 roomRuntime = "2.7.0"
 lifecycle-compose = "2.6.2"
@@ -16,6 +18,7 @@ hiltAndroid = "2.52"
 hiltCompiler = "1.2.0"
 kotlinKsp = "2.0.0-1.0.24"
 daggerHilt = "2.51.1"
+turbine = "1.0.0"
 
 
 [libraries]
@@ -47,6 +50,10 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltCompiler" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
 
 
 [plugins]

@@ -1,5 +1,6 @@
 package com.example.itnotes.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.itnotes.data.local.Note
@@ -8,6 +9,7 @@ import com.example.itnotes.domain.usecase.DeleteNoteUseCase
 import com.example.itnotes.domain.usecase.GetNoteByIdUseCase
 import com.example.itnotes.domain.usecase.UpdateNoteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +38,7 @@ class NoteViewModel @Inject constructor(
     val noteUiState: StateFlow<NoteUiState> = _noteUiState.asStateFlow()
 
     fun getNoteById(noteId: Int) {
+
         getNoteByIdUseCase(noteId)
             .onStart {
                 _noteUiState.value = NoteUiState.Loading
