@@ -49,6 +49,9 @@ fun NoteContent(
     var content by remember { mutableStateOf(note.content) }
 
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
+
+    val maxTitleLength = 40
 
     val formattedCreatedDate = remember(note.createdAt) {
         formatDate(note.createdAt)
@@ -63,10 +66,16 @@ fun NoteContent(
         modifier = modifier
             .padding(16.dp)
             .fillMaxSize()
+            .verticalScroll(scrollState)
+            .imePadding(),
     ) {
         BasicTextField(
             value = title,
-            onValueChange = { title = it },
+            onValueChange = {
+                if (it.length <= maxTitleLength) {
+                    title = it
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -75,7 +84,6 @@ fun NoteContent(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             ),
-            singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
             decorationBox = { innerTextField ->
                 if (title.isEmpty()) {

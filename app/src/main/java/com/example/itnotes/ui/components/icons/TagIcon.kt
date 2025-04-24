@@ -24,7 +24,7 @@ fun TagIcon(onAddTags: () -> Unit) {
             .clickable(onClick = onAddTags)
     ) {
         Icon(
-            painter = painterResource(R.drawable.label),
+            painter = painterResource(R.drawable.label2),
             contentDescription = "Add Tags",
             tint = MaterialTheme.colorScheme.onSurface
         )

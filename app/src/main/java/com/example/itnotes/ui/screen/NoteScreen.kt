@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -94,7 +95,6 @@ fun NoteScreen(
             )
             viewModel.createNote(newNote)
         } else {
-            Log.d("NoteScreen", "Getting note with ID: $noteId")
             viewModel.getNoteById(noteId)
         }
     }
@@ -204,6 +204,9 @@ fun NoteTopAppBar(
 
 
         },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
         modifier = modifier
     )
 }

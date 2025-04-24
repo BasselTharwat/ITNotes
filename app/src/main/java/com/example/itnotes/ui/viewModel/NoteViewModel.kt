@@ -37,16 +37,21 @@ class NoteViewModel @Inject constructor(
     private val _noteUiState = MutableStateFlow<NoteUiState>(NoteUiState.Loading)
     val noteUiState: StateFlow<NoteUiState> = _noteUiState.asStateFlow()
 
-    fun getNoteById(noteId: Int) {
+    private val _isDeleted = MutableStateFlow(false)
+    val isDeleted: StateFlow<Boolean> = _isDeleted.asStateFlow()
 
+
+    fun getNoteById(noteId: Int) {
         getNoteByIdUseCase(noteId)
             .onStart {
                 _noteUiState.value = NoteUiState.Loading
             }
-            .catch {
+            .catch { e ->
                 _noteUiState.value = NoteUiState.Error
             }
             .onEach { note ->
+                if (_isDeleted.value) return@onEach // prevent null error after delete
+
                 if (note == null) {
                     _noteUiState.value = NoteUiState.Error
                 } else {
@@ -71,11 +76,13 @@ class NoteViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 deleteNoteUseCase(note)
+                _isDeleted.value = true
             } catch (e: Exception) {
                 _noteUiState.value = NoteUiState.Error
             }
         }
     }
+
 
     fun createNote(note: Note){
         viewModelScope.launch {

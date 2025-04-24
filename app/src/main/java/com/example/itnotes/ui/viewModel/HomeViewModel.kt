@@ -35,6 +35,13 @@ class HomeViewModel @Inject constructor(
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 
+    // Another state for search
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
     init {
         getAllNotes()
     }
@@ -70,6 +77,25 @@ class HomeViewModel @Inject constructor(
                 _homeUiState.value = HomeUiState.Success(notes)
             }
             .launchIn(viewModelScope)
+    }
+
+    // Search methods
+    fun startSearch() {
+        _isSearching.value = true
+    }
+
+    fun endSearch() {
+        _isSearching.value = false
+        _searchQuery.value = ""
+        getAllNotes()
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun performSearch() {
+        searchNotes(_searchQuery.value)
     }
 
 

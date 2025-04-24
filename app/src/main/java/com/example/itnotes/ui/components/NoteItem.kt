@@ -64,7 +64,8 @@ fun NoteItem(note: Note,
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = if (note.title.isBlank()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface
                     ),
-                    maxLines = 1
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
 
 

@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,8 +63,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel() 
 ) {
     val uiState by viewModel.homeUiState.collectAsState()
-    var isSearching by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    val isSearching by viewModel.isSearching.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     when (uiState) {
         is HomeUiState.Loading -> {
@@ -87,21 +88,20 @@ fun HomeScreen(
                     if (isSearching) {
                         SearchBar(
                             query = searchQuery,
-                            onQueryChange = { searchQuery = it },
+                            onQueryChange = { viewModel.updateSearchQuery(it) },
                             onSearch = {
-                                viewModel.searchNotes(searchQuery)
+                                viewModel.performSearch()
                             },
                             onClose = {
-                                isSearching = false
-                                searchQuery = ""
-                                viewModel.getAllNotes()
+                                viewModel.endSearch()
                             }
                         )
                     } else {
                         HomeTopAppBar(
-                            modifier = modifier,
+                            modifier = modifier
+                                .padding(bottom = 8.dp),
                             onAddClick = onAddNote,
-                            onSearchClick = { isSearching = true }
+                            onSearchClick = { viewModel.startSearch() }
                         )
                     }
 
@@ -147,52 +147,47 @@ fun HomeTopAppBar(
     modifier: Modifier = Modifier,
     onAddClick: () -> Unit,
     onSearchClick: () -> Unit
-){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            val image = painterResource(id = R.drawable.john)
-            Image(
-                painter = image,
-                contentDescription = null,
-                modifier = modifier
-                    .size(64.dp)
-                    .border(4.dp, MaterialTheme.colorScheme.onSurface, RectangleShape)
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                val image = painterResource(id = R.drawable.john)
+                Image(
+                    painter = image,
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(64.dp)
+                        .border(4.dp, MaterialTheme.colorScheme.onSurface, RectangleShape)
+                )
 
-
-            Spacer(modifier = modifier.width(8.dp))
-            Column (
-                modifier = modifier,
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.Start
-
-            ){
-                Text("Hello \uD83D\uDC4B ",
-                    style = MaterialTheme.typography.bodySmall)
-                Text("John!", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = modifier.width(8.dp))
+                Column(
+                    modifier = modifier,
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        "Hello \uD83D\uDC4B ",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text("John!", style = MaterialTheme.typography.titleLarge)
+                }
             }
 
+            Row(modifier = modifier) {
+                SearchIcon(onSearchClick)
+                Spacer(modifier = modifier.width(8.dp))
+                AddNoteIcon(onAddClick)
+            }
         }
-
-        Row (
-            modifier = modifier
-        ){
-            SearchIcon(onSearchClick)
-            Spacer(modifier = modifier.width(8.dp))
-            AddNoteIcon(onAddClick)
-        }
-
-
-
     }
-
-
 }
-
