@@ -15,7 +15,7 @@ ITNotes is a clean, modern, and scalable Android note-taking app built using **J
 - 📅 Each note displays:
   - Title
   - Description
-  - Tags (optional)
+  - Tags
   - Timestamps (Created, Last Modified)
 
 ---
